@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import PetListCreateAPIView, PetListAPIView, PetDetailAPIView, AdoptPetAPIView, ReviewPetAPIView,PetUpdateAPIView
+from .views import PetListCreateAPIView, PetListAPIView, PetDetailAPIView, AdoptPetAPIView, ReviewPetAPIView,PetUpdateAPIView,PetReviewListCreateAPIView
 
 urlpatterns = [
     path('pets/', PetListAPIView.as_view(), name='pet-list'),
@@ -8,4 +8,5 @@ urlpatterns = [
     path('adopt/<int:pet_id>/', AdoptPetAPIView.as_view(), name='adopt-pet'),
     path('review/<int:pet_id>/', ReviewPetAPIView.as_view(), name='review-pet'),
     path('pets/<int:pet_id>/update/', PetUpdateAPIView.as_view(), name='pet-update'),
+    path('pets/<int:pk>/reviews/', PetReviewListCreateAPIView.as_view(), name='pet-review-list-create'),
 ]

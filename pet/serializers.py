@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Pet, Adopt, Review, UserBankAccount
+from .models import Pet, Adopt, Review
 
 class PetSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,3 +18,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = ['id', 'pet', 'user', 'name', 'email', 'body', 'created_on']
         read_only_fields = ['created_on']
+    def create(self, validated_data):
+        review = Review.objects.create(**validated_data)
+        return review

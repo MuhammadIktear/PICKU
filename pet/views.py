@@ -4,8 +4,10 @@ from rest_framework.views import APIView
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
-from .models import Pet, Adopt, Review, UserBankAccount
+from .models import Pet, Adopt, Review
+from users.models import UserAccount
 from .serializers import PetSerializer, AdoptSerializer, ReviewSerializer
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 class PetListCreateAPIView(generics.ListCreateAPIView):
     queryset = Pet.objects.all()
@@ -31,7 +33,7 @@ class AdoptPetAPIView(APIView):
     def post(self, request, pet_id):
         pet = get_object_or_404(Pet, id=pet_id)
         user = request.user
-        bank_account = get_object_or_404(UserBankAccount, user=user)
+        bank_account = get_object_or_404(UserAccount, user=user)
         if pet.status != 'Available To Adopt':
             return Response({"error": "This pet is not available for adoption."}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -95,3 +97,16 @@ class ReviewPetAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class PetReviewListCreateAPIView(generics.ListCreateAPIView):
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        pet_id = self.kwargs['pk']
+        return Review.objects.filter(pet_id=pet_id)
+
+    def perform_create(self, serializer):
+        pet_id = self.kwargs['pk']
+        pet = get_object_or_404(Pet, id=pet_id)
+        serializer.save(user=self.request.user, pet=pet)   
