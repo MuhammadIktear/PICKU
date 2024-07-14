@@ -1,6 +1,6 @@
 # views.py
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 from pet.models import Pet
 from .models import Species, Breed, Color, Size, Sex, Status
 from .serializers import PetSerializer, SpeciesSerializer, BreedSerializer, ColorSerializer, SizeSerializer, SexSerializer, StatusSerializer
@@ -32,4 +32,4 @@ class StatusViewSet(viewsets.ReadOnlyModelViewSet):
 class PetViewSet(viewsets.ModelViewSet):
     queryset = Pet.objects.all()
     serializer_class = PetSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
