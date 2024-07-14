@@ -3,9 +3,9 @@ from .models import Pet, Adopt, Review
 
 @admin.register(Pet)
 class PetAdmin(admin.ModelAdmin):
-    list_display = ('name', 'species', 'breed', 'color', 'size', 'sex', 'created_by', 'created_at', 'rehoming_fee', 'status')
-    list_filter = ('species', 'breed', 'color', 'size', 'sex', 'status')
-    search_fields = ('name', 'created_by__username')
+    list_display = ('name', 'species', 'breed', 'color', 'size', 'sex', 'status', 'created_by', 'created_at', 'rehoming_fee')
+    search_fields = ('name', 'species__name', 'breed__name', 'color__name', 'size__name', 'sex__name', 'status__name', 'created_by__username')
+    list_filter = ('species', 'breed', 'color', 'size', 'sex', 'status', 'created_at')
 
 @admin.register(Adopt)
 class AdoptAdmin(admin.ModelAdmin):

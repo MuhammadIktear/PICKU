@@ -1,20 +1,20 @@
 from django.db import models
 from django.contrib.auth.models import User
-from .constants import SEX, SIZE, SPECIES, COLOR, BREED, STATUS
+from filter.models import Species,Breed,Color,Size,Sex,Status
 
 class Pet(models.Model):
     name = models.CharField(max_length=100)
-    species = models.CharField(max_length=20, choices=SPECIES)
-    breed = models.CharField(max_length=100, choices=BREED)
-    color = models.CharField(max_length=20, choices=COLOR)
-    size = models.CharField(max_length=20, choices=SIZE)
-    sex = models.CharField(max_length=10, choices=SEX)
+    species = models.ForeignKey(Species, on_delete=models.CASCADE)
+    breed = models.ForeignKey(Breed, on_delete=models.CASCADE)
+    color = models.ForeignKey(Color, on_delete=models.CASCADE)
+    size = models.ForeignKey(Size, on_delete=models.CASCADE)
+    sex = models.ForeignKey(Sex, on_delete=models.CASCADE)
+    status = models.ForeignKey(Status, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='pet_images/')
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     rehoming_fee = models.DecimalField(default=0, max_digits=12, decimal_places=2)
     details = models.TextField()
-    status = models.CharField(max_length=20, choices=STATUS)
 
     def __str__(self):
         return self.name

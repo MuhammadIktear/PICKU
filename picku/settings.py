@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'users',
     'contact_us',
     'pet',
+    'filter',
     'rest_framework',
 ]
 
