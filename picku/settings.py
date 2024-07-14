@@ -29,7 +29,11 @@ SECRET_KEY = 'django-insecure-0ec4b*6$w57r@^h9=%((l1bta09ev@xc(tar8895&a55ag)lzn
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-CSRF_TRUSTED_ORIGINS = ['https://picku.onrender.com','https://*.127.0.0.1']
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:5500",
+    "https://picku.onrender.com",
+]
+
 
 
 # Application definition
@@ -42,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework.authtoken',
+    'corsheaders',
     'users',
     'contact_us',
     'pet',
@@ -50,6 +55,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
