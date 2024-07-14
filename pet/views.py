@@ -28,7 +28,7 @@ class PetDetailAPIView(generics.RetrieveAPIView):
     permission_classes = [AllowAny]
 
 class AdoptPetAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def post(self, request, pet_id):
         pet = get_object_or_404(Pet, id=pet_id)
@@ -50,7 +50,7 @@ class AdoptPetAPIView(APIView):
         pet.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 class PetUpdateAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get_object(self, pet_id, user):
         try:
@@ -79,7 +79,7 @@ class PetUpdateAPIView(APIView):
 
 
 class ReviewPetAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def post(self, request, pet_id):
         pet = get_object_or_404(Pet, id=pet_id)
@@ -100,7 +100,7 @@ class ReviewPetAPIView(APIView):
     
 class PetReviewListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    # permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         pet_id = self.kwargs['pk']
