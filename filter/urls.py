@@ -13,5 +13,5 @@ router.register(r'sexes', SexViewSet)
 router.register(r'statuses', StatusViewSet)
 
 urlpatterns = [
-    path('api/', include(router.urls)),
+    path('', include(router.urls)),
 ]
