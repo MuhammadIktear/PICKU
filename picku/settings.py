@@ -29,11 +29,7 @@ SECRET_KEY = 'django-insecure-0ec4b*6$w57r@^h9=%((l1bta09ev@xc(tar8895&a55ag)lzn
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:5500",
-    "https://picku.onrender.com",
-]
-
+CSRF_TRUSTED_ORIGINS = ['https://picku.onrender.com','https://*.127.0.0.1']
 
 
 # Application definition
