@@ -36,7 +36,7 @@ class StatusSerializer(serializers.ModelSerializer):
 class PetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pet
-        fields = ['name', 'species', 'breed', 'color', 'size', 'sex', 'image', 'rehoming_fee', 'details', 'statusPet']
+        fields = ['name', 'species', 'breed', 'color', 'size', 'sex', 'image', 'rehoming_fee', 'details', 'status']
 
     def create(self, validated_data):
         request = self.context.get('request')
