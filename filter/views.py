@@ -32,4 +32,27 @@ class StatusViewSet(viewsets.ReadOnlyModelViewSet):
 class PetViewSet(viewsets.ModelViewSet):
     queryset = Pet.objects.all()
     serializer_class = PetSerializer
-    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        queryset = Pet.objects.all()
+        species = self.request.query_params.get('species')
+        breed = self.request.query_params.get('breed')
+        color = self.request.query_params.get('color')
+        size = self.request.query_params.get('size')
+        sex = self.request.query_params.get('sex')
+        status = self.request.query_params.get('status')
+
+        if species:
+            queryset = queryset.filter(species=species)
+        if breed:
+            queryset = queryset.filter(breed=breed)
+        if color:
+            queryset = queryset.filter(color=color)
+        if size:
+            queryset = queryset.filter(size=size)
+        if sex:
+            queryset = queryset.filter(sex=sex)
+        if status:
+            queryset = queryset.filter(status=status)
+        
+        return queryset
