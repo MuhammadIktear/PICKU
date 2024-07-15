@@ -26,7 +26,7 @@ class PetDetailAPIView(generics.RetrieveAPIView):
     queryset = Pet.objects.all()
     serializer_class = PetSerializer
     permission_classes = [AllowAny]
-
+    lookup_field = 'name'
 class AdoptPetAPIView(APIView):
     # permission_classes = [IsAuthenticated]
 
