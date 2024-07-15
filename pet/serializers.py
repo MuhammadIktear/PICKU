@@ -20,16 +20,16 @@ class ReviewSerializer(serializers.ModelSerializer):
         return review
 
 class PetSerializer(serializers.ModelSerializer):
-    species = SpeciesSerializer()
-    breed = BreedSerializer()
-    color = ColorSerializer()
-    size = SizeSerializer()
-    sex = SexSerializer()
-    status = StatusSerializer()
+    species = serializers.PrimaryKeyRelatedField(queryset=Species.objects.all())
+    breed = serializers.PrimaryKeyRelatedField(queryset=Breed.objects.all())
+    color = serializers.PrimaryKeyRelatedField(queryset=Color.objects.all())
+    size = serializers.PrimaryKeyRelatedField(queryset=Size.objects.all())
+    sex = serializers.PrimaryKeyRelatedField(queryset=Sex.objects.all())
+    status = serializers.PrimaryKeyRelatedField(queryset=Status.objects.all())
 
     class Meta:
         model = Pet
-        fields = '__all__'
+        exclude = ['created_by']
     
     def create(self, validated_data):
         # Extract nested serializer data if needed
