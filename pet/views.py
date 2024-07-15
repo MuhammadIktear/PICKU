@@ -1,62 +1,53 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import get_object_or_404
 from .models import Pet, Adopt, Review
 from users.models import UserAccount
 from .serializers import PetSerializer, AdoptSerializer, ReviewSerializer
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
 
-class PetListCreateAPIView(generics.ListCreateAPIView):
-    queryset = Pet.objects.all()
-    serializer_class = PetSerializer
-    permission_classes = [AllowAny]
+class PetAPIView(APIView):
+    permission_classes = [AllowAny]  # Adjust permissions as needed
 
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+    def get(self, request, pet_id=None):
+        if pet_id:
+            return self.get_detail(request, pet_id)
 
-class PetListAPIView(generics.ListAPIView):
-    queryset = Pet.objects.all()
-    serializer_class = PetSerializer
-    permission_classes = [AllowAny]
+        queryset = Pet.objects.all()
 
-class PetDetailAPIView(generics.RetrieveAPIView):
-    queryset = Pet.objects.all()
-    serializer_class = PetSerializer
-    permission_classes = [AllowAny]
-class AdoptPetAPIView(APIView):
-    # permission_classes = [IsAuthenticated]
+        # Filter pets based on query parameters
+        species = request.query_params.get('species')
+        breed = request.query_params.get('breed')
+        color = request.query_params.get('color')
+        size = request.query_params.get('size')
+        sex = request.query_params.get('sex')
+        status = request.query_params.get('status')
 
-    def post(self, request, pet_id):
-        pet = get_object_or_404(Pet, id=pet_id)
-        user = request.user
-        bank_account = get_object_or_404(UserAccount, user=user)
-        if pet.status != 'Available To Adopt':
-            return Response({"error": "This pet is not available for adoption."}, status=status.HTTP_400_BAD_REQUEST)
+        if species:
+            queryset = queryset.filter(species__name=species)
+        if breed:
+            queryset = queryset.filter(breed__name=breed)
+        if color:
+            queryset = queryset.filter(color__name=color)
+        if size:
+            queryset = queryset.filter(size__name=size)
+        if sex:
+            queryset = queryset.filter(sex__name=sex)
+        if status:
+            queryset = queryset.filter(status__name=status)
 
-        if bank_account.balance < pet.rehoming_fee:
-            return Response({"error": "Insufficient balance."}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = PetSerializer(queryset, many=True)
+        return Response(serializer.data)
 
-        bank_account.balance -= pet.rehoming_fee
-        Adopt.objects.create(user=request.user, pet=pet)
-        bank_account.save()
-
-        adoption = Adopt.objects.create(user=user, pet=pet)
-        serializer = AdoptSerializer(adoption)
-        pet.status = 'Adopted'
-        pet.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-class PetUpdateAPIView(APIView):
-    # permission_classes = [IsAuthenticated]
-
-    def get_object(self, pet_id, user):
-        try:
-            pet = Pet.objects.get(id=pet_id, created_by=user)
-            return pet
-        except Pet.DoesNotExist:
-            return None
+    def post(self, request, pet_id=None):
+        if pet_id:
+            return Response({"error": "Method not allowed."}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        serializer = PetSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(created_by=self.request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, pet_id):
         pet = self.get_object(pet_id, request.user)
@@ -68,19 +59,50 @@ class PetUpdateAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def delete(self, request, pet_id):
         pet = self.get_object(pet_id, request.user)
         if not pet:
             return Response({"error": "You do not have permission to delete this pet or it does not exist."}, status=status.HTTP_403_FORBIDDEN)
         
         pet.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)    
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
+    def get_detail(self, request, pet_id):
+        pet = get_object_or_404(Pet, id=pet_id)
+        serializer = PetSerializer(pet)
+        return Response(serializer.data)
 
-class ReviewPetAPIView(APIView):
-    # permission_classes = [IsAuthenticated]
+    def get_object(self, pet_id, user):
+        try:
+            pet = Pet.objects.get(id=pet_id, created_by=user)
+            return pet
+        except Pet.DoesNotExist:
+            return None
 
-    def post(self, request, pet_id):
+    def post_adopt(self, request, pet_id):
+        pet = get_object_or_404(Pet, id=pet_id)
+        user = request.user
+        bank_account = get_object_or_404(UserAccount, user=user)
+
+        if pet.status != 'Available To Adopt':
+            return Response({"error": "This pet is not available for adoption."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if bank_account.balance < pet.rehoming_fee:
+            return Response({"error": "Insufficient balance."}, status=status.HTTP_400_BAD_REQUEST)
+
+        bank_account.balance -= pet.rehoming_fee
+        bank_account.save()
+
+        adoption = Adopt.objects.create(user=user, pet=pet)
+        serializer = AdoptSerializer(adoption)
+
+        pet.status = 'Adopted'
+        pet.save()
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def post_review(self, request, pet_id):
         pet = get_object_or_404(Pet, id=pet_id)
         user = request.user
 
@@ -96,16 +118,3 @@ class ReviewPetAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-class PetReviewListCreateAPIView(generics.ListCreateAPIView):
-    serializer_class = ReviewSerializer
-    # permission_classes = [IsAuthenticatedOrReadOnly]
-
-    def get_queryset(self):
-        pet_id = self.kwargs['pk']
-        return Review.objects.filter(pet_id=pet_id)
-
-    def perform_create(self, serializer):
-        pet_id = self.kwargs['pk']
-        pet = get_object_or_404(Pet, id=pet_id)
-        serializer.save(user=self.request.user, pet=pet)   

@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework.authtoken',
+    'django_filters',
     'corsheaders',
     'users',
     'contact_us',
@@ -76,6 +77,10 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'picku.urls'
 
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    # other settings...
+}
 
 TEMPLATES = [
     {
