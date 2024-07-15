@@ -6,7 +6,6 @@ class PetSerializer(serializers.ModelSerializer):
         model = Pet
         fields = ['id', 'name', 'species', 'breed', 'color', 'size', 'sex', 'image', 'rehoming_fee', 'status', 'details', 'created_at']
         read_only_fields = ['created_at']
-        lookup_field = 'name'
 
 class AdoptSerializer(serializers.ModelSerializer):
     class Meta:
